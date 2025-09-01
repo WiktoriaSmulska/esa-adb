@@ -71,7 +71,7 @@ def read_dataset(file_path: str, data_columns: List[str], anomaly_columns: List[
     return pd.read_csv(file_path, index_col="timestamp", parse_dates=True, dtype=dtypes)
 
 
-def handle_global_anomaly_column(dataset: pd.DataFrame, anomaly_columns: List[str], used_channels: List[str]) -> pd.DataFrame:
+def unravel_global_annotation(dataset: pd.DataFrame, anomaly_columns: List[str], used_channels: List[str]) -> pd.DataFrame:
     if len(anomaly_columns) == 1 and anomaly_columns[0] == "is_anomaly":  # Handle datasets with only one global is_anomaly column
         for ch in used_channels:
             dataset[f"is_anomaly_{ch}"] = dataset["is_anomaly"]
@@ -102,7 +102,7 @@ def load_data(config) -> Tuple[np.ndarray, float]:
     target_channels = get_valid_channels(config.customParameters.target_channels, data_columns, sort=True)
     config.customParameters.target_channels = target_channels
 
-    dataset = handle_global_anomaly_column(dataset, anomaly_columns, target_channels)
+    dataset = unravel_global_annotation(dataset, anomaly_columns, target_channels)
     dataset, anomaly_cols = filter_columns(dataset, target_channels)
 
     # Change channel names to index for further processing
